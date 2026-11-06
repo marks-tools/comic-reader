@@ -527,7 +527,7 @@
         </div>
         <div class="sep" aria-hidden="true"></div>
         <div class="group">
-          <button class="btn" id="btnShift" type="button" aria-pressed="false">見開きをずらす</button>
+          <button class="btn" id="btnShift" type="button" aria-pressed="false">見開きを直す</button>
         </div>
         <div class="sep" aria-hidden="true"></div>
         <div class="group">
@@ -836,7 +836,7 @@
              Starting a shift is only possible in spread mode on a
              portrait page (never from a wide scan); undoing is always
              allowed so the pairing can be restored from any mode. */
-          btnShift.textContent = S.shiftOn ? '元に戻す' : '見開きをずらす';
+          btnShift.textContent = S.shiftOn ? '元に戻す' : '見開きを直す';
           btnShift.classList.toggle('on', S.shiftOn);
           btnShift.setAttribute('aria-pressed', S.shiftOn ? 'true' : 'false');
           btnShift.disabled = !S.shiftOn && (S.mode !== 'spread' || isWidePage(S.page));
