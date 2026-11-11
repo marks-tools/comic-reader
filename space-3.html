@@ -171,7 +171,7 @@
       #doneChip {
         position: absolute;
         top: calc(10px + var(--safe-t));
-        right: calc(12px + var(--safe-r));
+        right: calc(124px + var(--safe-r));
         z-index: 30;
         display: none;
         padding: 5px 12px;
@@ -213,6 +213,44 @@
          back-to-shelf button, so the chip steps aside. */
       body.ui-on #shelfChip { display: none; }
       body.in-shelf #shelfChip { display: none !important; }
+
+      /* ---------- MENU button (top right, one step above the zoom button) ----------
+         Tapping the centre of the page also opens the menu, but this
+         button makes the same action discoverable. It is its own
+         element above the stage, like the zoom button below it, so a
+         press can never reach the page-turn tap zones underneath:
+         the corner tap zones at the top right stay clear of it. The
+         zoom button keeps its place directly under it. */
+      #btnMenuFab {
+        position: absolute;
+        top: calc(10px + var(--safe-t));
+        right: calc(12px + var(--safe-r));
+        z-index: 30;
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 15px;
+        min-height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.38);
+        background: rgba(18, 18, 20, 0.80);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: var(--btn-text);
+        font: inherit;
+        font-size: 14.5px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+      }
+      #btnMenuFab svg { width: 18px; height: 18px; flex: none; }
+      #btnMenuFab:active { background: rgba(46, 46, 50, 0.88); }
+      /* While the toolbars are up the menu is already open, so the
+         button steps aside (the top bar covers this corner anyway). */
+      body.ui-on #btnMenuFab { display: none; }
+      body.in-shelf #btnMenuFab { display: none !important; }
 
       /* ---------- zoom toggle button (top right, always in the reader) ----------
          A thin translucent white pill. It is its own element above
@@ -366,30 +404,60 @@
         margin: 0;
         direction: rtl;
       }
-      /* ---------- spread-shift marker (above the page slider) ----------
-         Shown only while a spread shift is active. The ▼ sits on the
-         slider at the page where the shift was applied, and tapping
-         the row clears the shift (same as 元に戻す). */
-      #shiftBar { position: relative; height: 24px; margin-bottom: 3px; }
+      /* ---------- spread-shift markers (above the page slider) ----------
+         Shown only while at least one spread shift is active. A ▼
+         sits on the slider at every page where a shift was applied
+         (a book can carry two or three), each applied page is listed
+         as a chip that removes just that one shift, and すべて解除
+         clears them all. */
+      #shiftBar { position: relative; margin-bottom: 3px; }
       #shiftBar[hidden] { display: none; }
-      #btnShiftMark {
+      #shiftMain {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        padding: 0 2px;
+        min-height: 24px;
+      }
+      #shiftLabel {
+        color: var(--btn-dim);
+        font-size: 12.5px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      #shiftChips { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+      .shiftChip {
+        appearance: none;
+        border: 1px solid var(--btn-border);
+        background: var(--btn-bg);
+        color: var(--btn-text);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        padding: 6px 9px;
+        border-radius: 999px;
+        cursor: pointer;
+        min-height: 28px;
+        white-space: nowrap;
+      }
+      .shiftChip:active { background: var(--btn-bg-hover); }
+      #btnShiftClear {
         appearance: none;
         border: 0;
         background: transparent;
-        color: var(--btn-dim);
+        color: var(--accent);
         font: inherit;
         font-size: 12.5px;
-        font-weight: 600;
-        width: 100%;
-        height: 100%;
-        padding: 0 2px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        font-weight: 700;
+        padding: 6px 2px;
+        margin-left: auto;
         cursor: pointer;
-        text-align: left;
+        white-space: nowrap;
       }
-      #shiftMark {
+      #shiftMarks { position: relative; height: 11px; }
+      .shiftMark {
         position: absolute;
         bottom: 0;
         transform: translateX(-50%);
@@ -398,7 +466,6 @@
         line-height: 1;
         pointer-events: none;
       }
-      .shiftUndo { margin-left: auto; color: var(--accent); white-space: nowrap; }
       #btnRow {
         display: flex;
         flex-wrap: wrap;
@@ -1151,8 +1218,8 @@
           padding-right: calc(12px + var(--safe-r));
         }
         #sliderRow { margin-bottom: 5px; gap: 8px; }
-        #shiftBar { height: 20px; margin-bottom: 1px; }
-        #btnShiftMark { font-size: 11.5px; }
+        #shiftBar { margin-bottom: 1px; }
+        #shiftLabel, #btnShiftClear { font-size: 11.5px; }
         #pageSlider { height: 20px; }
         #btnRow { gap: 6px; flex-wrap: wrap; }
         #btnRow .group { gap: 6px; }
@@ -1193,8 +1260,8 @@
       }
       body.rotated #bottomBar { padding-top: 6px; padding-bottom: calc(6px + var(--safe-b)); }
       body.rotated #sliderRow { margin-bottom: 5px; gap: 8px; }
-      body.rotated #shiftBar { height: 20px; margin-bottom: 1px; }
-      body.rotated #btnShiftMark { font-size: 11.5px; }
+      body.rotated #shiftBar { margin-bottom: 1px; }
+      body.rotated #shiftLabel, body.rotated #btnShiftClear { font-size: 11.5px; }
       body.rotated #pageSlider { height: 20px; }
       body.rotated #btnRow { gap: 6px; }
       body.rotated #btnRow .group { gap: 6px; }
@@ -1325,6 +1392,10 @@
 
     <div id="doneChip">読了</div>
     <button id="shelfChip" type="button">‹ 本棚に戻る</button>
+    <button id="btnMenuFab" type="button" aria-label="メニューを開く">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <span>MENU</span>
+    </button>
     <button id="btnZoomFab" type="button" aria-label="ズームする">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3 21 21"/><path d="M10.5 7.8v5.4M7.8 10.5h5.4"/></svg>
       <span id="zoomFabLabel">ズーム</span>
@@ -1348,11 +1419,12 @@
 
     <footer class="bar" id="bottomBar">
       <div id="shiftBar" hidden>
-        <button type="button" id="btnShiftMark" aria-label="見開きの直しを解除する">
+        <div id="shiftMain">
           <span id="shiftLabel">見開きの直し</span>
-          <span class="shiftUndo">タップで解除</span>
-          <span id="shiftMark" aria-hidden="true">▼</span>
-        </button>
+          <span id="shiftChips"></span>
+          <button type="button" id="btnShiftClear">すべて解除</button>
+        </div>
+        <div id="shiftMarks" aria-hidden="true"></div>
       </div>
       <div id="sliderRow">
         <span class="edge" id="edgeHigh">30</span>
@@ -1370,7 +1442,8 @@
         </div>
         <div class="sep" aria-hidden="true"></div>
         <div class="group">
-          <button class="btn" id="btnShift" type="button" aria-pressed="false">見開きを直す</button>
+          <button class="btn" id="btnShiftPrev" type="button">前頁と見開き</button>
+          <button class="btn" id="btnShiftNext" type="button">次頁と見開き</button>
         </div>
         <div class="sep" aria-hidden="true"></div>
         <div class="group">
@@ -1410,6 +1483,7 @@
           <button type="button" data-val="normal">右＝進む<br />左＝戻る</button>
           <button type="button" data-val="invert">右＝戻る<br />左＝進む</button>
         </div>
+        <p style="margin:8px 2px 0;font-size:12.5px;line-height:1.65;color:var(--btn-dim)">画面のタップ場所：右端の中央＝次頁、左端の中央＝前頁、四つの角＝逆方向（右角＝前頁、左角＝次頁）、中央の上端＝本棚、中央＝メニューです。右上の MENU ボタンからもメニューを開けます。上の割当を「逆」にすると、進む／戻るの向きがすべて入れ替わります。</p>
       </div>
 
       <div class="setGroup readerOnly">
@@ -1437,6 +1511,7 @@
           <button type="button" data-val="single">単ページ</button>
           <button type="button" data-val="spread">見開き</button>
         </div>
+        <p style="margin:8px 2px 0;font-size:12.5px;line-height:1.65;color:var(--btn-dim)">見開きの合わせ直しは、読んでいる画面の下のバーにある「前頁と見開き」「次頁と見開き」で行います。いま開いている頁（見開きのときは左頁）を基準に、その頁を前の頁と組にするか、次の頁と組にするかを指定します。直しは1冊に複数か所つけられます（表紙・中表紙・章の区切りなど）。付けた直しはスライダーの上の ▼ と一覧で確認でき、頁ごとの解除と、まとめての解除ができます。</p>
       </div>
 
       <div class="setGroup readerOnly">
@@ -1557,7 +1632,7 @@
            on screen (shelf title bar and the bottom of 設定). Bump
            this one number on each published build so the reader can
            always confirm which version they are looking at. */
-        var APP_VERSION = '1.7';
+        var APP_VERSION = '1.8';
         (function syncVersionLabels() {
           var shelf = document.getElementById('appVerShelf');
           if (shelf) shelf.textContent = 'ver' + APP_VERSION;
@@ -1619,23 +1694,48 @@
         var S = {
           page: 0,
           mode: null, /* 'single' | 'spread' */
-          shiftOn: false,
-          shiftAt: 0,
+          shifts: [], /* pages where a pairing blank is inserted (multiple per book) */
+          shiftOn: false, /* legacy mirror: shifts.length > 0 */
+          shiftAt: 0, /* legacy mirror: first entry of shifts */
           finished: false,
           zoomOn: false,
           settings: { invert: false, anim: 'curl', zoomPreset: 150, rotate: false }
         };
+        function syncShiftMirror() {
+          S.shiftOn = S.shifts.length > 0;
+          S.shiftAt = S.shifts.length ? S.shifts[0] : 0;
+        }
+        function normalizeShifts(list, book) {
+          var out = [];
+          if (Array.isArray(list)) {
+            for (var i = 0; i < list.length; i++) {
+              var v = list[i];
+              if (typeof v !== 'number') continue;
+              v = Math.min(book.total - 1, Math.max(0, v | 0));
+              if (out.indexOf(v) === -1) out.push(v);
+            }
+          }
+          out.sort(function (a, b) { return a - b; });
+          return out;
+        }
         /* Per-book reading state, keyed by book id. S mirrors the
            currently open book's entry; settings live outside the
            per-book entries and are shared by every book. */
         var LIB = { current: BOOK.id, books: {}, favs: {} };
         function bookStateFrom(src, book) {
-          var st = { page: 0, mode: null, shiftOn: false, shiftAt: 0, finished: false, lastAt: 0 };
+          var st = { page: 0, mode: null, shiftOn: false, shiftAt: 0, shifts: [], finished: false, lastAt: 0 };
           if (src && typeof src === 'object') {
             if (typeof src.page === 'number') st.page = Math.min(book.total - 1, Math.max(0, src.page | 0));
             if (src.mode === 'single' || src.mode === 'spread') st.mode = src.mode;
             if (typeof src.shiftOn === 'boolean') st.shiftOn = src.shiftOn;
             if (typeof src.shiftAt === 'number') st.shiftAt = Math.min(book.total - 1, Math.max(0, src.shiftAt | 0));
+            /* Multiple shifts are the current form; a book saved by
+               an older build carries only the single shiftOn/shiftAt
+               pair, which migrates into a one-entry list. */
+            if (Array.isArray(src.shifts)) st.shifts = normalizeShifts(src.shifts, book);
+            else if (st.shiftOn) st.shifts = [st.shiftAt];
+            st.shiftOn = st.shifts.length > 0;
+            st.shiftAt = st.shifts.length ? st.shifts[0] : 0;
             if (typeof src.finished === 'boolean') st.finished = src.finished;
             if (typeof src.lastAt === 'number') st.lastAt = src.lastAt;
           }
@@ -1693,14 +1793,15 @@
         LIB.current = BOOK.id;
         function loadBookIntoS() {
           var st = LIB.books[BOOK.id] || bookStateFrom(null, BOOK);
-          S.page = st.page; S.mode = st.mode; S.shiftOn = st.shiftOn;
-          S.shiftAt = st.shiftAt; S.finished = st.finished;
+          S.page = st.page; S.mode = st.mode; S.shifts = normalizeShifts(st.shifts, BOOK);
+          syncShiftMirror(); S.finished = st.finished;
           if (!S.mode) S.mode = (window.innerWidth > window.innerHeight) ? 'spread' : 'single';
         }
         function stashS() {
+          syncShiftMirror();
           LIB.books[BOOK.id] = {
             page: S.page, mode: S.mode, shiftOn: S.shiftOn,
-            shiftAt: S.shiftAt, finished: S.finished, lastAt: Date.now()
+            shiftAt: S.shiftAt, shifts: S.shifts.slice(), finished: S.finished, lastAt: Date.now()
           };
           if (dyn && BOOK.id === dyn.key) {
             LIB.books[BOOK.id].volIndex = dyn.volIdx;
@@ -1733,9 +1834,10 @@
         var btnFilePrev = $('btnFilePrev'), btnFileNext = $('btnFileNext');
         var btnNextBook = $('btnNextBook');
         var bookTitle = $('bookTitle'), edgeHigh = $('edgeHigh');
-        var btnShift = $('btnShift');
-        var shiftBar = $('shiftBar'), shiftLabel = $('shiftLabel'), shiftMark = $('shiftMark');
-        var btnShiftMark = $('btnShiftMark');
+        var btnShiftPrev = $('btnShiftPrev'), btnShiftNext = $('btnShiftNext');
+        var shiftBar = $('shiftBar'), shiftLabel = $('shiftLabel'), shiftChips = $('shiftChips'), shiftMarks = $('shiftMarks');
+        var btnShiftClear = $('btnShiftClear');
+        var btnMenuFab = $('btnMenuFab');
         var btnZoomMode = $('btnZoomMode'), btnZoomReset = $('btnZoomReset');
         var btnZoomFab = $('btnZoomFab'), zoomFabLabel = $('zoomFabLabel');
         var pageSlider = $('pageSlider');
@@ -1748,14 +1850,16 @@
            - spread mode: a pair of portrait files, OR one wide scan
              on its own, OR a lone portrait file next to a wide scan.
            The shift blank only ever applies to portrait pairings. */
-        function buildSlots() {
+        function buildSlotsFor(shiftsList) {
           var a = [];
           for (var i = 0; i < TOTAL; i++) {
-            if (S.shiftOn && i === S.shiftAt && !isWidePage(i)) a.push({ blank: true });
+            if (shiftsList.indexOf(i) !== -1 && !isWidePage(i)) a.push({ blank: true, at: i });
             a.push({ page: i });
           }
           return a;
         }
+        function buildSlots() { return buildSlotsFor(S.shifts); }
+        function buildGroupsFor(shiftsList) { return buildGroups(buildSlotsFor(shiftsList)); }
         function slotIsWide(slot) {
           return !!slot && typeof slot.page === 'number' && isWidePage(slot.page);
         }
@@ -1809,6 +1913,85 @@
             if (typeof g[k].page === 'number') out.push(g[k].page);
           }
           return out.length ? out : [S.page];
+        }
+        /* ---------- spread pairing (multiple shifts) ----------
+           The base page for a pairing instruction: in single mode
+           the page on screen; in spread mode the LEFT page of the
+           spread on screen — the later page in file order, which is
+           the one shown in the left frame (the right frame shows
+           the earlier page). A spread holding a blank plus one page
+           bases on that one page. */
+        function shiftBasePage() {
+          if (S.mode !== 'spread') return S.page;
+          var groups = buildGroups(buildSlots());
+          var g = currentGroup(groups);
+          var last = null;
+          for (var k = 0; k < g.length; k++) {
+            if (typeof g[k].page === 'number') last = g[k].page;
+          }
+          return last !== null ? last : S.page;
+        }
+        function groupContainsPair(groups, a, b) {
+          for (var g = 0; g < groups.length; g++) {
+            var hasA = false, hasB = false;
+            for (var k = 0; k < groups[g].length; k++) {
+              if (groups[g][k].page === a) hasA = true;
+              if (groups[g][k].page === b) hasB = true;
+            }
+            if (hasA && hasB) return true;
+          }
+          return false;
+        }
+        function toggledShifts(list, at) {
+          var out = list.slice();
+          var i = out.indexOf(at);
+          if (i === -1) out.push(at); else out.splice(i, 1);
+          out.sort(function (x, y) { return x - y; });
+          return out;
+        }
+        /* Pair the base page with its previous ('prev') or next
+           ('next') page. A pairing is fixed by flipping the parity
+           from a point onward — inserting (or removing) the blank
+           at the start of the wanted pair does exactly that, and
+           with several blanks already in the book the same local
+           flip works at each heading (cover, inner cover, chapter
+           pages…) independently. Candidates are tried in order and
+           the first one that actually lands the two pages in one
+           spread wins, so an existing blank at the base page (which
+           leaves it standing alone) is undone instead of doubled. */
+        function applyShiftPair(dir) {
+          var base = shiftBasePage();
+          if (isWidePage(base)) return;
+          var partner = dir === 'next' ? base + 1 : base - 1;
+          if (partner < 0 || partner >= TOTAL || isWidePage(partner)) return;
+          if (groupContainsPair(buildGroups(buildSlots()), base, partner)) return; /* already paired that way */
+          var start = dir === 'next' ? base : partner;
+          var candidates = [start, base, partner];
+          var tried = [];
+          for (var c = 0; c < candidates.length; c++) {
+            var at = candidates[c];
+            if (tried.indexOf(at) !== -1) continue;
+            tried.push(at);
+            var next = toggledShifts(S.shifts, at);
+            if (groupContainsPair(buildGroupsFor(next), base, partner)) {
+              S.shifts = next; syncShiftMirror();
+              S.page = base;
+              resetZoom(false); save(); render();
+              return;
+            }
+          }
+          /* No single local flip lands the pair (wide pages nearby):
+             still apply the flip at the pair's start so the pairing
+             from there on shifts by one, as the reader asked. */
+          S.shifts = toggledShifts(S.shifts, start); syncShiftMirror();
+          S.page = base;
+          resetZoom(false); save(); render();
+        }
+        function removeShiftAt(at) {
+          var i = S.shifts.indexOf(at);
+          if (i === -1) return;
+          S.shifts.splice(i, 1); syncShiftMirror();
+          resetZoom(false); save(); render();
         }
 
         /* ---------- zoom ---------- */
@@ -1928,15 +2111,25 @@
           pageSlider.max = String(TOTAL);
           edgeHigh.textContent = String(TOTAL);
           btnMode.textContent = S.mode === 'single' ? '見開き表示' : '単ページ表示';
-          /* One toggle button for the spread shift: its label and
-             pressed state always say whether pairing is shifted.
-             Starting a shift is only possible in spread mode on a
-             portrait page (never from a wide scan); undoing is always
-             allowed so the pairing can be restored from any mode. */
-          btnShift.textContent = S.shiftOn ? '元に戻す' : '見開きを直す';
-          btnShift.classList.toggle('on', S.shiftOn);
-          btnShift.setAttribute('aria-pressed', S.shiftOn ? 'true' : 'false');
-          btnShift.disabled = !S.shiftOn && (S.mode !== 'spread' || isWidePage(S.page));
+          /* Two pairing buttons, one per direction, based on the
+             page on screen (the left page of a spread): 前頁と見開き
+             pairs the base page with the page before it, 次頁と見開き
+             with the page after it. A button lights up when the base
+             page is already paired that way, and each direction is
+             disabled at the book's edge or next to a wide scan.
+             Pairing fixes can be added in both display modes — they
+             are stored per book and shape the spread grouping. */
+          var shiftBase = shiftBasePage();
+          var shiftGroups = buildGroups(buildSlots());
+          var baseWide = isWidePage(shiftBase);
+          var pairedPrev = !baseWide && shiftBase > 0 && !isWidePage(shiftBase - 1) && groupContainsPair(shiftGroups, shiftBase, shiftBase - 1);
+          var pairedNext = !baseWide && shiftBase < TOTAL - 1 && !isWidePage(shiftBase + 1) && groupContainsPair(shiftGroups, shiftBase, shiftBase + 1);
+          btnShiftPrev.disabled = baseWide || shiftBase <= 0 || isWidePage(shiftBase - 1);
+          btnShiftNext.disabled = baseWide || shiftBase >= TOTAL - 1 || isWidePage(shiftBase + 1);
+          btnShiftPrev.classList.toggle('on', pairedPrev);
+          btnShiftNext.classList.toggle('on', pairedNext);
+          btnShiftPrev.setAttribute('aria-pressed', pairedPrev ? 'true' : 'false');
+          btnShiftNext.setAttribute('aria-pressed', pairedNext ? 'true' : 'false');
           btnZoomMode.textContent = S.zoomOn ? 'ズーム ON' : 'ズーム OFF';
           btnZoomMode.classList.toggle('on', S.zoomOn);
           btnZoomMode.setAttribute('aria-pressed', S.zoomOn ? 'true' : 'false');
@@ -1948,26 +2141,46 @@
           preloadAround();
         }
 
-        /* ---------- spread-shift marker ----------
-           While a shift is active, a slim row above the page slider
-           says where the pairing was shifted and points a ▼ at that
-           page on the slider, so the (otherwise invisible) setting
-           can be seen — and cleared by tapping the row. Positions use
+        /* ---------- spread-shift markers ----------
+           While any shift is active, a slim row above the page slider
+           lists every page where pairing was shifted, points a ▼ at
+           each of those pages on the slider, and offers per-page
+           removal (tap a page chip) plus すべて解除. Positions use
            offset* values (layout coordinates), which stay correct
            even when the whole stage is rotated. The slider is RTL:
            page 1 sits at the right end, the last page at the left. */
         function updateShiftBar() {
-          if (!S.shiftOn) { shiftBar.hidden = true; return; }
+          if (!S.shifts.length) { shiftBar.hidden = true; shiftChips.innerHTML = ''; shiftMarks.innerHTML = ''; return; }
           shiftBar.hidden = false;
-          shiftLabel.textContent = '見開きの直し：' + (S.shiftAt + 1) + 'ページ目';
+          shiftLabel.textContent = '見開きの直し：' + S.shifts.length + 'か所';
+          shiftChips.innerHTML = '';
+          S.shifts.forEach(function (at) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'shiftChip';
+            b.textContent = (at + 1) + 'ページ目 ✕';
+            b.setAttribute('aria-label', (at + 1) + 'ページ目の見開きの直しを解除する');
+            b.addEventListener('click', function () { showUI(); removeShiftAt(at); });
+            shiftChips.appendChild(b);
+          });
+          shiftMarks.innerHTML = '';
+          S.shifts.forEach(function () {
+            var m = document.createElement('span');
+            m.className = 'shiftMark';
+            m.textContent = '▼';
+            shiftMarks.appendChild(m);
+          });
         }
         function positionShiftMark() {
           if (shiftBar.hidden) return;
           var half = 14; /* half the slider thumb, so ▼ tracks its centre */
           var w = pageSlider.offsetWidth;
-          var f = TOTAL > 1 ? S.shiftAt / (TOTAL - 1) : 0;
-          var cx = pageSlider.offsetLeft + w - half - f * Math.max(0, w - half * 2);
-          shiftMark.style.left = (cx - shiftBar.offsetLeft) + 'px';
+          var marks = shiftMarks.children;
+          for (var i = 0; i < marks.length && i < S.shifts.length; i++) {
+            var f = TOTAL > 1 ? S.shifts[i] / (TOTAL - 1) : 0;
+            var cx = pageSlider.offsetLeft + w - half - f * Math.max(0, w - half * 2);
+            marks[i].style.left = (cx - shiftBar.offsetLeft) + 'px';
+          }
         }
 
         /* ---------- page turn animation ---------- */
@@ -2093,14 +2306,35 @@
           if (document.body.classList.contains('ui-on')) hideUI(); else showUI();
         }
 
-        /* ---------- tap handling ---------- */
-        function zoneAction(localX) {
-          var f = localX / viewport.clientWidth;
-          if (f > 0.38 && f < 0.62) { toggleUI(); return; }
-          var rightSide = f >= 0.62;
-          var isNext = S.settings.invert ? !rightSide : rightSide;
+        /* ---------- tap handling ----------
+           Tap zones (in the stage's local coordinates, so they hold
+           in the rotated layout too):
+           - right edge, vertically centred: next page
+           - left edge, vertically centred: previous page
+           - the four corners: the reverse of the edge beside them
+             (right corners = previous page, left corners = next page)
+           - top edge, horizontally centred: back to the bookshelf
+           - centre: the menu (toolbars), same as the MENU button
+           The floating buttons (本棚 chip at the top left, MENU and
+           ズーム at the top right) are separate elements layered
+           above the stage, so a press on one of them never reaches
+           these zones — the corner and top-edge zones stay clear of
+           every button. The 右＝進む／左＝戻る setting swaps next and
+           previous for every page-turn zone at once. */
+        function zoneAction(localX, localY) {
+          var W = viewport.clientWidth, H = viewport.clientHeight;
+          if (!W || !H) return;
+          var fx = localX / W, fy = localY / H;
+          if (fy <= 0.16 && fx > 0.36 && fx < 0.64) { hideUI(); enterShelf(); return; }
+          var isCorner = (fx <= 0.20 || fx >= 0.80) && (fy <= 0.20 || fy >= 0.80);
+          var wantNext;
+          if (isCorner) wantNext = fx < 0.5; /* right corner = prev, left corner = next */
+          else if (fx >= 0.62) wantNext = true; /* right edge centre = next */
+          else if (fx <= 0.38) wantNext = false; /* left edge centre = prev */
+          else { toggleUI(); return; }
+          if (S.settings.invert) wantNext = !wantNext;
           hideUI();
-          if (isNext) goNext(); else goPrev();
+          if (wantNext) goNext(); else goPrev();
         }
 
         function registerTap(x, y) {
@@ -2113,7 +2347,7 @@
              taps do nothing at all (drag pans instead); the zoom
              button returns to exactly 100%. */
           if (Z.scale > 1) return;
-          zoneAction(x);
+          zoneAction(x, y);
         }
 
         /* ---------- pointer gestures (pinch / pan / tap) ---------- */
@@ -2283,33 +2517,19 @@
           S.mode = S.mode === 'single' ? 'spread' : 'single';
           resetZoom(false); save(); render();
         });
-        btnShift.addEventListener('click', function () {
+        btnShiftPrev.addEventListener('click', function () { showUI(); applyShiftPair('prev'); });
+        btnShiftNext.addEventListener('click', function () { showUI(); applyShiftPair('next'); });
+        btnShiftClear.addEventListener('click', function () {
+          /* Clear every pairing fix in this book at once; the page
+             on screen stays, back on its original pairing. */
           showUI();
-          if (S.shiftOn) {
-            /* Undo: drop the blank; S.page stays, so the reader lands
-               back on the original pairing containing the same page. */
-            S.shiftOn = false;
-          } else {
-            if (S.mode !== 'spread' || isWidePage(S.page)) return;
-            /* Anchor on the first page of the spread on screen (in
-               file order), not on S.page itself: after a slider jump
-               or a mode switch S.page can be the second page of the
-               pair, and the blank must go in front of the pair so this
-               spread and every pairing after it shift by one page. */
-            var groups = buildGroups(buildSlots());
-            var anchor = firstPageOfGroup(currentGroup(groups));
-            if (anchor === null) return;
-            S.shiftOn = true; S.shiftAt = anchor; S.page = anchor;
-          }
+          if (!S.shifts.length) return;
+          S.shifts = []; syncShiftMirror();
           resetZoom(false); save(); render();
         });
-        btnShiftMark.addEventListener('click', function () {
-          /* Tapping the marker row clears the shift, same as 元に戻す. */
-          showUI();
-          if (!S.shiftOn) return;
-          S.shiftOn = false;
-          resetZoom(false); save(); render();
-        });
+        /* MENU button: the same menu the centre tap opens, as a
+           visible button at the top right, one step above ズーム. */
+        btnMenuFab.addEventListener('click', function () { toggleUI(); });
         btnZoomMode.addEventListener('click', function () {
           showUI();
           S.zoomOn = !S.zoomOn;
@@ -3362,7 +3582,7 @@
             dyn = { key: key, urls: res.urls, wides: res.wides, series: s, seriesPath: s.path, vols: volumes || [], volIdx: idx, vol: vol, path: path };
             BOOK = nb; TOTAL = nb.total; bookIdx = -1;
             var st = bookStateFrom(LIB.books[key], nb);
-            S.page = st.page; S.mode = st.mode; S.shiftOn = st.shiftOn; S.shiftAt = st.shiftAt; S.finished = st.finished;
+            S.page = st.page; S.mode = st.mode; S.shifts = normalizeShifts(st.shifts, nb); syncShiftMirror(); S.finished = st.finished;
             if (!S.mode) S.mode = (window.innerWidth > window.innerHeight) ? 'spread' : 'single';
             if (opts.startAt === 'first') S.page = 0;
             if (opts.startAt === 'last') S.page = TOTAL - 1;
@@ -5021,7 +5241,7 @@
              record was just wiped, the mirror must not write the
              old position back on the next save(). */
           var st = LIB.books[BOOK.id];
-          if (!st) { S.page = 0; S.finished = false; S.shiftOn = false; }
+          if (!st) { S.page = 0; S.finished = false; S.shifts = []; syncShiftMirror(); }
         }
         function doResetSeries() {
           var sel = $('resetSeriesSelect');
@@ -5050,7 +5270,7 @@
         function doResetAll() {
           showConfirm('全シリーズの読書記録（読書位置と既読）をすべて消します。よろしいですか。', function () {
             LIB.books = {};
-            S.page = 0; S.finished = false; S.shiftOn = false;
+            S.page = 0; S.finished = false; S.shifts = []; syncShiftMirror();
             save(); renderShelf();
             if (!document.body.classList.contains('in-shelf')) render();
             closeSettings();
